@@ -1,0 +1,27 @@
+import backtrader as bt
+
+class MovingAverageCrossStrategy(bt.Strategy):
+    params = (
+        ('sma1_period', 50),
+        ('sma2_period', 200)
+    )
+
+    def __init__(self):
+        self.sma1 = bt.indicators.SimpleMovingAverage(self.data, period=self.params.sma1_period)
+        self.sma2 = bt.indicators.SimpleMovingAverage(self.data, period=self.params.sma2_period)
+
+    def next(self):
+        if self.sma1 > self.sma2:
+            self.buy()
+        elif self.sma1 < self.sma2:
+            self.sell()
+
+if __name__ == '__main__':
+    cerebro = bt.Cerebro()
+    cerebro.addstrategy(MovingAverageCrossStrategy)
+
+    data = bt.feeds.YahooFinanceData(dataname='AAPL', fromdate=datetime(2010, 1, 1), todate=datetime(2021, 12, 31))
+    cerebro.adddata(data)
+
+    cerebro.run()
+    cerebro.plot()
